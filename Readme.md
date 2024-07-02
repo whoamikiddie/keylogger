@@ -41,9 +41,8 @@ This project facilitates covert data collection on a target system. It gathers v
 - **Telegram Bot Integration:** Extend the project to include Telegram bot functionality for sending collected data, such as screenshots and webcam images, securely via Telegram.
 - **Executable Creation:** Develop a working executable with branding and logo for easier deployment.
 - **File Encryption and Obfuscation:** Enhance security by implementing file encryption and obfuscation techniques to protect the log files.
-- **Disposable Email Usage:** Implement sending data to disposable email addresses for anonymity and security.
-- **Public Facing IP Address Retrieval:** Include functionality to retrieve the public facing IP address of the target system.
-- **WiFi Password Retrieval:** Investigate methods to retrieve WiFi passwords from the target system (if legally and ethically permissible).
+
+
 
 ## Notes
 - This script is intended for educational purposes only. Ensure compliance with local laws and ethical guidelines before use.
