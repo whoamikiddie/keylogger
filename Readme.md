@@ -17,7 +17,7 @@ This project is designed for covert data collection on a target system. It gathe
 
 ## Requirements
 - Python 3.x
-- Required Python packages (`pip install -r requirements.txt`):
+- Required Python packages 
   - `browserhistory`
   - `opencv-python`
   - `requests`
@@ -31,7 +31,7 @@ This project is designed for covert data collection on a target system. It gathe
 1. **Configuration:**
    - Set the `email_address` and `password` variables in `send_mail()` function.
 2. **Execution:**
-   - Run the `spyware.py` script. It will collect data for 5 minutes and send it via email.
+   - Run the `keylogger.py` script. It will collect data for 5 minutes and send it via email.
 3. **Customization:**
    - Modify regular expressions in `RegObject` class for file filtering.
    - Adjust paths (`export_path`, `screenshot_dir`, `webcam_dir`) for data storage and transmission.
