@@ -1,7 +1,8 @@
-Python Keylogger with Encryption
+Python Keylogger
+
 Overview
 
-This Python script serves as a keylogger designed to capture keystrokes, take screenshots, record microphone input, and capture webcam images on Windows and Linux platforms. It encrypts sensitive data and sends it via email using SMTP.
+This Python script serves as a keylogger designed to capture keystrokes, take screenshots, record microphone input, and capture webcam images on both Windows and Linux platforms. It encrypts sensitive data and sends it via email using SMTP.
 Features
 
     Keylogging: Captures keystrokes and logs them into a file (key_logs.txt).
