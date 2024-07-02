@@ -16,15 +16,6 @@ PACKAGE_FILENAME = 'packages.txt'
 
 
 def system_cmd(cmd: list, exec_time):
-    """
-    Executes system shell command and returns the output. If improper data type is in command syntax
-    list or error occurs during command execution, the error is displayed via stderr and logged,
-    and False is returned to indicated failed operation.
-
-    :param cmd:  The command to be executed.
-    :param exec_time:  The execution timeout to prevent process hangs.
-    :return:  Nothing
-    """
     try:
         # Set up child process in context manager, piping output & errors to return variables #
         with Popen(cmd, stdout=sys.stdout, stderr=sys.stderr) as command:
@@ -43,22 +34,6 @@ def system_cmd(cmd: list, exec_time):
 
 
 class ExtendedEnvBuilder(venv.EnvBuilder):
-    """
-    This builder installs setuptools and pip so that you can pip or easy_install other packages
-    into the created virtual environment.
-
-    :param nodist:  If true, setuptools and pip are not installed into the created virtual
-                    environment.
-    :param nopip:  If true, pip is not installed into the created virtual environment.
-    :param progress:  If setuptools or pip are installed, the progress of the installation can be
-                      monitored by passing a progress callable. If specified, it is called with
-                      two arguments: a string indicating some progress, and a context indicating
-                      where the string is coming from. The context argument can have one of three
-                      values: 'main', indicating that it is called from virtualize() itself, and
-                      'stdout' and 'stderr', which are obtained by reading lines from the output
-                      streams of a subprocess which is used to install the app. If a callable is
-                      not specified, default progress information is output to sys.stderr.
-    """
     def __init__(self, *args, **kwargs):
         self.nodist = kwargs.pop('nodist', False)
         self.nopip = kwargs.pop('nopip', False)
@@ -67,11 +42,6 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
         super().__init__(*args, **kwargs)
 
     def install_setuptools(self, context):
-        """
-        Install setuptools in the virtual environment.
-
-        :param context: The information for the virtual environment creation request.
-        """
         url = 'https://github.com/abadger/setuptools/blob/master/ez_setup.py'
         self.install_script(context, 'setuptools', url)
 
@@ -85,22 +55,10 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
             os.unlink(file)
 
     def install_pip(self, context):
-        """
-        Install pip in the virtual environment.
-
-        :param context: The information for the virtual environment creation request.
-        """
         url = 'https://bootstrap.pypa.io/get-pip.py'
         self.install_script(context, 'pip', url)
 
     def post_setup(self, context):
-        """
-        Set up any packages which need to be pre-installed into the virtual environment being
-        created.
-
-        :param context:  The information for the virtual environment creation request.
-        :return:  Nothing
-        """
         os.environ['VIRTUAL_ENV'] = context.env_dir
 
         # If no setup tools #
@@ -139,14 +97,6 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
             system_cmd(command, 300)
 
     def reader(self, stream, context):
-        """
-        Read lines from a subprocess' output stream and either pass to a progress callable
-        (if specified) or write progress information to sys.stderr.
-
-        :param stream:  Subprocess output stream.
-        :param context:  The information for the virtual environment creation request.
-        :return: Nothing
-        """
         progress = self.progress
 
         while True:
@@ -174,14 +124,6 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
         stream.close()
 
     def install_script(self, context, name, url):
-        """
-        Retrieve content from passed in url and install into the virtual env.
-
-        :param context:  The information for the virtual environment creation request.
-        :param name:  Utility name to be installed into environment.
-        :param url:  The url where the utility can be retrieved from the internet.
-        :return:  Nothing
-        """
         _, _, path, _, _, _ = urlparse(url)
         file_name = os.path.split(path)[-1]
         binpath = context.bin_path
@@ -234,12 +176,6 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
 
 
 def print_err(msg: str):
-    """
-    Prints error message via stderr.
-
-    :param msg:  The error message to be displayed via stderr.
-    :return:  Nothing
-    """
     print(f'\n* [ERROR] {msg} *\n', file=sys.stderr)
 
 
