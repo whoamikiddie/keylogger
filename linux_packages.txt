@@ -3,6 +3,7 @@ cryptography
 opencv-python
 Pillow
 pynput
+python-daemon
 requests
 scipy
 sounddevice

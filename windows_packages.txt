@@ -7,3 +7,4 @@ requests
 scipy
 sounddevice
 pywin32
+python-daemon
