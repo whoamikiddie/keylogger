@@ -15,7 +15,7 @@ This project facilitates covert data collection on a target system. It gathers v
 - **Email Notification:** Encrypted data is sent via email to a specified address.
 
 ## Requirements
-- Python 3.x
+- Python 3.11.9
 - Required Python packages:
   - `browserhistory`
   - `opencv-python`
