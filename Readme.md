@@ -40,7 +40,7 @@ This project is designed for covert data collection on a target system. It gathe
 - This script is intended for educational purposes only.
 - Use responsibly and ensure compliance with local laws and ethical guidelines.
 
-## Future: Telegram Bot
+## In Future: Telegram Bot
 In future versions, the project will be extended to include Telegram file sending functionality. This will allow collected data, such as screenshots and webcam images, to be securely transmitted via Telegram Bot.
 
 ## Disclaimer
