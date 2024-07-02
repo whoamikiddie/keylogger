@@ -1,48 +1,59 @@
+Python Keylogger
+Description
 
-# Python Keylogger
+This project facilitates covert data collection on a target system. It gathers various types of information, encrypts them, and sends them via email. The collected data includes system information, browser history, screenshots, webcam images, microphone recordings, and clipboard contents. The script operates discreetly on both Windows and Linux systems.
+Features
 
-## Description
-This project is designed for covert data collection on a target system. It gathers various types of information, encrypts it, and sends it via email. The collected data includes system information, browser history, screenshots, webcam images, microphone recordings, and clipboard contents. The script runs discreetly on both Windows and Linux systems.
+    Data Collection:
+        Logging every keystroke and special characters
+        Gathering computer information (RAM, OS) and network information (IP address, MAC address)
+        Capturing clipboard contents (Windows only)
+        Taking screenshots periodically
+        Optionally recording microphone input (if implemented)
 
-## Features
-- **Data Collection:**
-  - System information (Windows/Linux)
-  - Browser history
-  - Screenshots
-  - Webcam images
-  - Microphone recordings
-  - Clipboard contents (Windows only)
-- **Encryption:** Data is encrypted using Fernet encryption before transmission.
-- **Email Notification:** Encrypted data is sent via email to a specified address.
+    Encryption: Data is securely encrypted using Fernet encryption before transmission.
 
-## Requirements
-- Python 3.x
-- Required Python packages 
-  - `browserhistory`
-  - `opencv-python`
-  - `requests`
-  - `sounddevice`
-  - `cryptography`
-  - `Pillow`
-  - `pynput`
-  - `win32clipboard` (Windows only)
+    Email Notification: Encrypted data is sent via email to a specified address.
 
-## Usage
-1. **Configuration:**
-   - Set the `email_address` and `password` variables in `send_mail()` function.
-2. **Execution:**
-   - Run the `keylogger.py` script. It will collect data for 5 minutes and send it via email.
-3. **Customization:**
-   - Modify regular expressions in `RegObject` class for file filtering.
-   - Adjust paths (`export_path`, `screenshot_dir`, `webcam_dir`) for data storage and transmission.
+Requirements
 
-## Notes
-- This script is intended for educational purposes only.
-- Use responsibly and ensure compliance with local laws and ethical guidelines.
+    Python 3.x
+    Required Python packages:
+        browserhistory
+        opencv-python
+        requests
+        sounddevice
+        cryptography
+        Pillow
+        pynput
+        win32clipboard (Windows only)
 
-## In Future: Telegram Bot
-In future versions, the project will be extended to include Telegram file sending functionality. This will allow collected data, such as screenshots and webcam images, to be securely transmitted via Telegram Bot.
+Usage
 
-## Disclaimer
-The authors are not responsible for any misuse or damage caused by this software.
+    Configuration:
+        Set the email_address and password variables in the send_mail() function to specify the email address for sending data.
 
+    Execution:
+        Run the keylogger.py script. It will collect data for a specified duration (e.g., 5 minutes) and send it via email.
+
+    Customization:
+        Modify regular expressions in the RegObject class for custom file filtering based on your requirements.
+        Adjust paths (export_path, screenshot_dir, webcam_dir) to suit your preferred directories for data storage and transmission.
+
+Future Improvements
+
+    Telegram Bot Integration: Extend the project to include Telegram bot functionality for sending collected data, such as screenshots and webcam images, securely via Telegram.
+    Executable Creation: Develop a working executable with branding and logo for easier deployment.
+    File Encryption and Obfuscation: Enhance security by implementing file encryption and obfuscation techniques to protect the log files.
+    Disposable Email Usage: Implement sending data to disposable email addresses for anonymity and security.
+    Public Facing IP Address Retrieval: Include functionality to retrieve the public facing IP address of the target system.
+    WiFi Password Retrieval: Investigate methods to retrieve WiFi passwords from the target system (if legally and ethically permissible).
+
+Notes
+
+    This script is intended for educational purposes only. Ensure compliance with local laws and ethical guidelines before use.
+    Use responsibly and avoid unauthorized use or deployment on systems without proper authorization.
+
+Disclaimer
+
+The authors disclaim any responsibility for misuse or damage caused by the use of this software. Use at your own risk.
