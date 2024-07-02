@@ -28,6 +28,7 @@ if os.name == 'nt':
     import win32clipboard
 
 
+
 def smtp_handler(email_address: str, password: str, email: MIMEMultipart):
     try:
         with smtplib.SMTP('smtp.gmail.com', 587) as session:
