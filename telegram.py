@@ -3,7 +3,6 @@ import time
 import json
 import requests
 from collections import defaultdict
-from daemon import DaemonContext
 
 # Load the token and chat ID from the configuration file
 with open('config.json', 'r') as f:
@@ -41,16 +40,14 @@ def send_to_telegram(bot_token, chat_id, directory):
 
 def send_files_batch(files_to_send, url, chat_id):
     try:
-        files = {}
         for file_path in files_to_send:
+            file_name = os.path.basename(file_path)
             with open(file_path, 'rb') as f:
-                file_name = os.path.basename(file_path)
-                files[file_name] = (file_name, f)
-
-        params = {'chat_id': chat_id}
-        response = requests.post(url, files=files, params=params)
-        response.raise_for_status()
-        print(f"{len(files_to_send)} files sent successfully to Telegram")
+                files = {'document': (file_name, f, 'multipart/form-data')}
+                params = {'chat_id': chat_id}
+                response = requests.post(url, files=files, params=params)
+                response.raise_for_status()
+                print(f"File {file_name} sent successfully to Telegram")
     except Exception as e:
         print(f"Error sending files to Telegram: {e}")
 
@@ -74,5 +71,4 @@ def main():
         time.sleep(300)
 
 if __name__ == "__main__":
-    with DaemonContext():
-        main()
+    main()
